@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category>custom</category>
+        <client_script><![CDATA[function(spUtil,$scope,$rootScope) {
+	/* widget controller */
+	var c = this;
+	//	alert("Array server script :"+JSON.stringify(c.data.notes));
+	//	alert("Test Server script :"+c.data.testvalue);
+var outeridx =0;
+	c.selectItem = function(idx)
+	{
+		//	spUtil.addInfoMessage("Index of selected note "+idx);
+		//alert("Index of selected note "+idx);
+		outeridx =idx;
+		var id = c.data.notes[idx].sys_id;
+		//	alert("Sys_id of selected Note is "+id);
+		$rootScope.noteID = id;
+		$rootScope.$emit('selectNote', id);
+		//	console.log('Note ID: ' + id);
+	}
+
+	$rootScope.$on('refreshNote',function(event,data){
+		//alert("Refresh Note ON");
+		console.log("Data object passed from Note Body widget "+JSON.stringify(data));
+		c.data.notes[outeridx].nnotes = data.note;
+		c.data.notes[outeridx].title = data.title;
+		
+		/*	c.server.get({
+			action: "refreshNote",
+			noteID : $rootScope.modsys_id,
+			notetitle: $rootScope.modtitle,
+			notenote: $rootScope.modnote
+		}).
+
+		then(function(r){
+			alert("List refreshed");
+
+		});*/
+	});
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css/>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description/>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>notes_list_new</id>
+        <internal>false</internal>
+        <link><![CDATA[function link(scope, element, attrs, controller) {
+  
+}]]></link>
+        <name>Notes List New</name>
+        <option_schema/>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+	/* populate the 'data' object */
+	/* e.g., data.table = $sp.getValue('table'); */
+	data.notes =[];
+
+	data.testvalue = "testvalue";
+	var gr = new GlideRecord('x_snc_createnotes_note');
+	gr.addEncodedQuery('user='+gs.getUserID());
+	gr.orderByDesc('sys_created_on');
+	gr.query();
+	while(gr.next())
+	{
+		var noteObj={};
+		$sp.getRecordDisplayValues(noteObj,gr,'number,title,sys_id');
+		noteObj.nnotes = gr.note.slice(0,10);
+		//		gs.addInfoMessage(gr.note);
+		data.notes.push(noteObj);
+	}
+/*
+	if(input && input.noteID){
+		var i;
+		//var noteObj1={};
+		gs.addInfoMessage("List view "+input.noteID);
+		var grref = new GlideRecord('x_snc_createnotes_note');
+		gr.query()
+		while(grref.next())
+		{
+			var noteObj1={};
+			$sp.getRecordDisplayValues(noteObj1,grref,'number,title,sys_id');
+			noteObj1.nnotes = grref.note.slice(0,10);
+			//		gs.addInfoMessage(gr.note);
+			data.notes.push(noteObj1);
+		}
+			grref.addQuery('sys_id='+input.noteID.toString());
+		//	gr.orderByDesc('sys_created_on');
+		grref.query()
+		if(grref.next())
+		{
+			gs.addInfoMessage(JSON.stringify(data.notes));
+			for(i=0;i<data.notes.length;i++){
+					if(JSON.stringify(data.notes[i]).indexOf(input.noteID.toString()) != -1)
+					data.notes[i] = $sp.getRecordDisplayValues(noteObj1,grref,'number,title,sys_id');
+				}
+
+		//	grref.title = input.title;
+		//	grref.note = input.notenote;
+		//	grref.update();
+		//	var noteObj={};
+			//$sp.getRecordDisplayValues(noteObj,grref,'number,title,sys_id');
+		}
+
+		gs.addInfoMessage("POST modifications "+JSON.stringify(data.notes));
+	}*/
+
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2019-11-29 11:07:38</sys_created_on>
+        <sys_id>91bd7f17dbdd0010b5e72fb7489619a1</sys_id>
+        <sys_mod_count>4</sys_mod_count>
+        <sys_name>Notes List New</sys_name>
+        <sys_package display_value="CreateNotes" source="x_snc_createnotes">df5fd9a5090232007f44e1046c8ff69f</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="CreateNotes">df5fd9a5090232007f44e1046c8ff69f</sys_scope>
+        <sys_update_name>sp_widget_91bd7f17dbdd0010b5e72fb7489619a1</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2019-11-29 11:28:47</sys_updated_on>
+        <template><![CDATA[<div class="panel panel-default">
+  <div class="panel-heading clearfix">
+    <h3 class="panel-title pull-left">
+      ${Notes}
+    </h3>
+  </div>
+  <div class="list-group">
+    <a class="list-group-item" ng-click = "c.selectItem($index)" ng-repeat="note in c.data.notes">
+      <h4 class="list-group-item-heading">
+        <b> Title :</b>{{note.title}}
+      </h4>
+      <p class="list-group-item-text">
+        <b> Number :</b> {{note.number}}<br>
+        <b> Notes Sliced to 10 Characters :</b>   {{note.nnotes}}  
+      </p>
+    </a>
+  </div>
+</div>]]></template>
+    </sp_widget>
+</record_update>
